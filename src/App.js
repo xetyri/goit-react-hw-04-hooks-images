@@ -27,6 +27,7 @@ export default function App () {
   const pictureAPI = () => {
     const key = "23947692-766c5aa41098b9126601621b0";
     const perPage = 12;
+    setStatus('pending');
     try {
     fetch(
       `https://pixabay.com/api/?q=${pictureName}&page=${page}&key=${key}&image_type=photo&orientation=horizontal&per_page=${perPage}`
@@ -49,11 +50,6 @@ export default function App () {
     }
   };
 
-  const searchPictures = (picture) => {
-    setPictureName(picture);
-    // this.setState({ pictureName: picture });
-  };
-
   const modalControl = () => {
     setShowModal(!showModal)
   };
@@ -74,11 +70,17 @@ export default function App () {
     pictureAPI();
   };
 
+  const searchPictures = e => {
+    if (e === pictures) return;
+    setPictureName(e);
+    setPage(1);
+    setPictures([]);
+    };
+
   return (
     <div className={s.App}>
       <Searchbar onSubmit={searchPictures} />
       {status === "pending" && <Loader />}
-      {status === "rejected" && <p>Error</p>}
       {status === "resolved" && (
         <ImageGallery pictures={pictures} getLargeIMG={getLargeIMG} />
       )}
