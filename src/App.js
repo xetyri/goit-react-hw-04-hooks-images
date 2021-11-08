@@ -18,17 +18,22 @@ export default function App () {
   const [largeImageURL, setLargeImageURL] = useState(null);
 
   useEffect(() => {
-    if (!pictureName)
+     if (!pictureName)
     return;
-    pictureAPI();
+    setStatus('pending');
+    setPictures([]);
+    setPage(1);
+    setTimeout(() => {
+      pictureAPI();
+    }, 500);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[pictureName]);
 
   const pictureAPI = () => {
     const key = "23947692-766c5aa41098b9126601621b0";
     const perPage = 12;
-    setStatus('pending');
-    try {
+
+    setStatus('pending');  
     fetch(
       `https://pixabay.com/api/?q=${pictureName}&page=${page}&key=${key}&image_type=photo&orientation=horizontal&per_page=${perPage}`
     )
@@ -37,18 +42,23 @@ export default function App () {
         setPictures(prevState => [...prevState, ...images.hits]);
         setStatus('resolved');
         setPage(prevState => prevState + 1);
+        console.log(pictureName);
         if (page > 1) {
           scroll();
         }
       });
-    } catch (error) {
-      console.log('Error:', error.message);
-      setError({ error });
-    }
-    finally {
-        setStatus('resolved');
-    }
+
   };
+
+  
+
+const searchPictures = (picture) => {
+  if (picture === pictureName) return;
+  setPictureName(picture);
+  setPage(1);
+  setPictures([]);
+};
+
 
   const modalControl = () => {
     setShowModal(!showModal)
@@ -70,17 +80,13 @@ export default function App () {
     pictureAPI();
   };
 
-  const searchPictures = e => {
-    if (e === pictures) return;
-    setPictureName(e);
-    setPage(1);
-    setPictures([]);
-    };
 
+    
   return (
     <div className={s.App}>
       <Searchbar onSubmit={searchPictures} />
       {status === "pending" && <Loader />}
+      {status === "rejected" && <p>Error</p>}
       {status === "resolved" && (
         <ImageGallery pictures={pictures} getLargeIMG={getLargeIMG} />
       )}
@@ -98,4 +104,4 @@ export default function App () {
       )}
     </div>
   );
-}   
+}
